@@ -45,9 +45,9 @@ runs:
     - name: Set up Maven settings for site deployment
       uses: bernardo-mg/maven-site-deployment-settings-action@v1
       with:
-        username: ${{ secrets.username }}
-        password: ${{ secrets.password }}
-        siteUrl: ${{ secrets.url }}
+        username: ${{ inputs.username }}
+        password: ${{ inputs.password }}
+        siteUrl: ${{ inputs.url }}
         fileName: site_settings.xml
     - name: Generate docs
       run: mvn verify site -B -P ${{ inputs.profile }}

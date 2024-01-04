@@ -5,28 +5,9 @@ branding:
   icon: 'book-open'
   color: 'green'
 inputs:
-  environment:
-    description: 'Github environment to use'
-    default: 'deployment_site'
-    required: false
-  branch:
-    description: 'Branch on which the site will be deployed'
-    required: true
-  profile:
-    description: 'Maven profile for site deployment'
-    default: 'deployment-site'
-    required: false
-  configFile:
-    description: 'Maven configuration file for site deployment'
-    default: 'site_settings.xml'
-    required: false
   host:
     description: 'Host where the site will be deployed'
     required: true
-  jdk:
-    description: 'JDK version to use'
-    default: '11'
-    required: false
   url:
     description: 'URL to deploy the site'
     required: true
@@ -36,6 +17,14 @@ inputs:
   password:
     description: 'Password for deploying'
     required: true
+  jdk:
+    description: 'JDK version to use'
+    default: '11'
+    required: false
+  profile:
+    description: 'Maven profile for site deployment'
+    default: 'deployment-site'
+    required: false
 runs:
     using: 'composite'
     steps:
@@ -59,10 +48,10 @@ runs:
         username: ${{ secrets.username }}
         password: ${{ secrets.password }}
         siteUrl: ${{ secrets.url }}
-        fileName: ${{ inputs.configFile }}
+        fileName: site_settings.xml
     - name: Generate docs
       run: mvn verify site -B -P ${{ inputs.profile }}
       shell: bash
     - name: Deploy docs
-      run: mvn site:deploy -B -P ${{ inputs.profile }} -DskipTests --settings ${{ inputs.configFile }}
+      run: mvn site:deploy -B -P ${{ inputs.profile }} -DskipTests --settings site_settings.xml
       shell: bash

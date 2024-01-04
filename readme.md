@@ -17,7 +17,7 @@ Builds and deploys a Maven site.
 
 This builds and deploys the Maven site.
 
-```
+```yaml
 jobs:
   deploy:
     name: Deployment

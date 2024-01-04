@@ -1,0 +1,68 @@
+name: 'Maven site deployment'
+description: 'Deploy a Maven site'
+author: 'Bernardo Mart�nez Garrido'
+branding:
+  icon: 'book-open'
+  color: 'green'
+inputs:
+  environment:
+    description: 'Github environment to use'
+    default: 'deployment_site'
+    required: false
+  branch:
+    description: 'Branch on which the site will be deployed'
+    required: true
+  profile:
+    description: 'Maven profile for site deployment'
+    default: 'deployment-site'
+    required: false
+  configFile:
+    description: 'Maven configuration file for site deployment'
+    default: 'site_settings.xml'
+    required: false
+  host:
+    description: 'Host where the site will be deployed'
+    required: true
+  jdk:
+    description: 'JDK version to use'
+    default: '11'
+    required: false
+  url:
+    description: 'URL to deploy the site'
+    required: true
+  username:
+    description: 'Username for deploying'
+    required: true
+  password:
+    description: 'Password for deploying'
+    required: true
+runs:
+    using: 'composite'
+    steps:
+    - name: Register SSH host
+      uses: bernardo-mg/ssh-host-register-action@v1
+      with:
+        host: ${{ inputs.host }}
+    - name: Check-out
+      uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+    - name: Set up JDK ${{ inputs.jdk }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ inputs.jdk }}
+        distribution: 'temurin'
+        cache: 'maven'
+    - name: Set up Maven settings for site deployment
+      uses: bernardo-mg/maven-site-deployment-settings-action@v1
+      with:
+        username: ${{ secrets.username }}
+        password: ${{ secrets.password }}
+        siteUrl: ${{ secrets.url }}
+        fileName: ${{ inputs.configFile }}
+    - name: Generate docs
+      run: mvn verify site -B -P ${{ inputs.profile }}
+      shell: bash
+    - name: Deploy docs
+      run: mvn site:deploy -B -P ${{ inputs.profile }} -DskipTests --settings ${{ inputs.configFile }}
+      shell: bash
